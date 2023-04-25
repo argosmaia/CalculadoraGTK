@@ -20,6 +20,18 @@ static void on_button_clicked(GtkWidget *widget, gpointer data);
 static void on_window_destroy(GtkWidget *widget, gpointer data);
 static gboolean validate_expression(const char *expression);
 
+/**
+ * @brief 
+ * entry: é um ponteiro para um widget do tipo GtkEntry.
+ * window: é um ponteiro para um widget do tipo GtkWindow.
+ * grid: é um ponteiro para um widget do tipo GtkGrid.
+ * buttons: é um vetor de ponteiros para widgets do tipo GtkButton. 
+*/
+GtkWidget *entry;
+GtkWidget *window;
+GtkWidget *grid;
+GtkWidget *buttons[18] = {};
+
 static void on_button_clicked(GtkWidget *widget, gpointer data) {
     GtkWidget *entry = (GtkWidget *) data;
     const char *expression = gtk_entry_get_text(GTK_ENTRY(entry));
@@ -48,7 +60,7 @@ static gboolean validate_expression(const char *expression) {
     char msgbuf[100];
 
     reti = regcomp(&regex, "^[0-9+\\-*/^()\\. ]+$", 0);
-    if (reti) {
+    if(reti) {
         fprintf(stderr, "Não consegui compilar a expressão gerada\n");
         exit(1);
     }
@@ -56,11 +68,23 @@ static gboolean validate_expression(const char *expression) {
     reti = regexec(&regex, expression, 0, NULL, 0);
     if (!reti) {
         return TRUE;
-    } else if (reti == REG_NOMATCH) {
+    } else if(reti == REG_NOMATCH) {
         return FALSE;
     } else {
-        regerror(reti, &regex, msgbuf, sizeof (msgbuf));
+        regerror(reti, &regex, msgbuf, sizeof(msgbuf));
         fprintf(stderr, "combinação falhou: %s\n", msgbuf);
         exit(1);
     }
+}
+
+int main(int argc, char *argv[]) {
+    // Inicialização do GTK
+    gtk_init(&argc, &argv);
+
+    // Criação da janela principal
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(window), "Calculadora");
+    gtk_window_set_resizable(GTK_WINDOW(window), TRUE);
+
+    gtk_main();
 }
